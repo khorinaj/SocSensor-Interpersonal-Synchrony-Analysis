@@ -33,28 +33,30 @@ Raw data file called `Data.mat` storing synchronized acceleration and gyroscope 
 
 1. Ensure all prerequisites are installed and the raw data file is in place.
 2. Open MATLAB and navigate to the project directory.
-3. Run the main scripts 
+3. Run the main scripts
+   First-time run: follows the order SimilarityAnalysis_1.m->FeatureAnalysis_2.m->Classification_3.m->Visualization_4.m
+   Save all variable
 
 ## Script Descriptions
 
-### 1. similarity_analysis.m
+### 1. SimilarityAnalysis_1.m
 - Data preparation
 - Wavelet Analysis
 - Windowed Cross-Correlation Analysis
 - Windowed Dynamic Time Warping Analysis
 
-### 2. feature_analysis.m
+### 2. FeatureAnalysis_2.m
 - Extracts algorithm values from selected time points
 - Calculates R-square values for individual algorithms
 - Generates R-square values for combined features
 
-### 3. classification.m
+### 3. Classification_3.m
 
 - Loads processed data and extracted features
 - Configures and trains classification models (Ensemble Bagged Tree or Random Forest)
 - Evaluates model performance
 
-### 4. visualization.m
+### 4. Visualization_4.m
 
 - Use classification to generate threshold (high and low interactions) to be used in visualisation plots
 - Generates Tiger Plots for specific participants
