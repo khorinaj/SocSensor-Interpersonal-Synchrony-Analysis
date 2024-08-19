@@ -33,7 +33,7 @@ across various real-world educational settings. This rich dataset provides a com
 
 ## Data Preparation
 
-Raw data file called `Data.mat` storing synchronized acceleration and gyroscope data needs to be downloaded from the OSF link: https://osf.io/498up/ and saved in the `Data` folder of this project.
+Raw data file called `Data.mat` storing synchronized acceleration and gyroscope data needs to be downloaded from the OSF link: https://osf.io/498up/?view_only=faf4878ec4da4426aa1bdb957e9a6b50 and saved in the `Data` folder of this project.
 
 ## Usage
 

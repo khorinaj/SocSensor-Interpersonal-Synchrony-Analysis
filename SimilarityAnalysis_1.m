@@ -10,7 +10,7 @@
 % Vesion: 
 
 % Note: Raw data file called Data.mat storing syncrhonized acceleration and gyroscope data 
-% need to be downloaded from OSF, link: https://osf.io/498up/
+% need to be downloaded from OSF, link: https://osf.io/498up/?view_only=faf4878ec4da4426aa1bdb957e9a6b50
 % and save in the Data folder in this folder in order for prepareData function to work
 %% Setup
 
