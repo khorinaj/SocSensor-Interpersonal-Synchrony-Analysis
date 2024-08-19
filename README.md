@@ -5,10 +5,10 @@ This project consists of four main MATLAB scripts for analyzing time series data
 It also includes the simulated example for generating two simulated siganls and testing the similairty analysis on more controlled controlled envieroment.
 
 ## Author
-
+[anon.]
 
 ## Date
-[Current Date]
+19/08/2024
 
 ## About SocSensor dataset
 The SocSensor dataset encompasses synchronized acceleration and gyroscope data collected at 25Hz, from wrist-worn mBient sensors for three distinct groups of children (young ASC, older ASC, and neurotypical) and adult participants (teachers, teaching assistants, and researchers) 
