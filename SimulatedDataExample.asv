@@ -1,17 +1,13 @@
 %% MATLAB Script to Generate Simulated Acceleration Data in Case Study section
 % This script generates two simulated acceleration signals,
 % performs various similarity analysis, and visualizes the results.
-% to priovide a tutorial of using different similarity analysis and
-% evaluate the effiuciency of each algorithm
 
 % Parameters
 samplingRate = 25; % Hz
 duration = 200; % seconds (2 minutes)
 totalPoints = duration * samplingRate;
 time = linspace(0, duration, totalPoints);
-% Define types of movements from segments defined below
-Types = [1,2,10,4,5,3,6,7,8,9];
-% Types=[1,2,10,4,5,3,6,7,8,11]; % Alternative set of mov
+
 
 % Function for Sine Wave (Synchronized Movement)
 sineWave = @(t, freq, amp, phase) amp * sin(2 * pi * freq * t + phase);
@@ -22,7 +18,8 @@ randomNoise = @(len, scale) scale * randn(len, 1);
 % Preallocate Arrays
 dataPerson1 = zeros(totalPoints, 1);
 dataPerson2 = zeros(totalPoints, 1);
-
+Types=[1,2,10,4,5,3,6,7,8,9];
+% Types=[1,2,10,4,5,3,6,7,8,11];
 % Define each segment (each segment is 10 seconds for more variety)
 segmentLength=20;
 for i = 1:(duration/segmentLength)
@@ -136,7 +133,7 @@ stepsize=2.52;
 Alg.(strcat('DTW_',name1))=dtwori;
 
 
-%% Plot results from each analysis
+%% Plot figure
 
 LegendName=["CC","ED","DTW","XWT(0.2-2s)","WCT(0.2-2s)","XWT lowf(2-5s)","WCT(2-5s)"];
 lineW=4;
