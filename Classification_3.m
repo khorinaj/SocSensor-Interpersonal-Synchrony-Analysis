@@ -8,7 +8,7 @@
 % 4. Model training (Ensemble Bagged Tree or Random Forest)
 % 5. Model evaluation
 % 
-% Author: Yanke SUN
+% Author: 
 % Date: 25/7/2024
 
 %% Add functions to path

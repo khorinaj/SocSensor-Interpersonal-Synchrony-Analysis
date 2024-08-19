@@ -4,7 +4,7 @@
 % groups
 % This tiger plots and network plots for specific sessions and participants.
 % 
-% Author: Yanke Sun
+% Author:
 % Date: 25/7/2024
 
 %% Setup

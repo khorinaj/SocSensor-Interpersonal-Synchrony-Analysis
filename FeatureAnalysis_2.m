@@ -1,7 +1,7 @@
 %% Feature Analysis through linear regression
 % This script analysis Rsquare and pvalues from linear regression for different
 % similarity measures and different combinition of similarity measures
-% Author: Yanke Sun
+% Author:
 % Date: 25/7/2024
 
 %% Add functions to path

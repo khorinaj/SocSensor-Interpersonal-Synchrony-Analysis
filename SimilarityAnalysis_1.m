@@ -5,7 +5,7 @@
 % techniques (Wavelet Analysis, Windowed Cross-Correlation, Windowed Dynamic Time Warping),
 % and prepares data for subsequent classification.
 % 
-% Author: Yanke Sun
+% Author: 
 % Date: 25/7/2024
 % Vesion: 
 
