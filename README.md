@@ -4,7 +4,7 @@
 This project consists of four main MATLAB scripts for analyzing time series data, particularly focused on acceleration/gyroscope signal data. It includes data preparation, signal processing, feature analysis, classification of interaction levels, and visualization of results.
 
 ## Author
-Yanke Sun, Sally Day,...Jamie Ward
+
 
 ## Date
 [Current Date]
