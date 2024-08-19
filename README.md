@@ -4,10 +4,10 @@
 This project consists of four main MATLAB scripts for analyzing time series data, particularly focused on acceleration/gyroscope signal data. It includes data preparation, signal processing, feature analysis, classification of interaction levels, and visualization of results.
 
 ## Author
-
+[anon.]
 
 ## Date
-[Current Date]
+19/08/2024
 
 ## Project Structure
 1. `SimilarityAnalysis_1.m`: Main script for similarity analysis
