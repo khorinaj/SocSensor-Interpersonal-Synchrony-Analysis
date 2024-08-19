@@ -25,6 +25,14 @@ if ~ismember(session, allinfostr(:, 4))
     error('Session does not exist in Socsensor Dataset');
 end
 
+if ~ismember(sensortype,["ACC","GYR"])
+    error('Wrong sensortype input: should be either ACC or GYR ');
+end
+
+if ~ismember(RLtype,["L","R"])
+    error('Wrong RLtype input: should be either L or R');
+end
+
 % Load data
 load('Data\Data.mat', 'originalData', 'dataLabel');
 fname = regexprep(session, ' ', '_');

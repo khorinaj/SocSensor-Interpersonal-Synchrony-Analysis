@@ -1,6 +1,7 @@
 function [VideoScore, AlgValueAverage, AlgrithmList, SessionPariLabel,varargout] = ...
           ExtractAlgValuesFromTimePoints(SyncData, ParLabels, Alg)
-% EXTRACTALGVALUESFROMTIMEPOINTS2 Extracts algorithm values from time points.
+% EXTRACTALGVALUESFROMTIMEPOINTS2 Extracts algorithm values from time points
+% (which is time points druing the sessions when the video clips is scored).
 %
 % INPUTS:
 %   - SyncData (struct): Synchronized data for all sessions.
@@ -9,7 +10,7 @@ function [VideoScore, AlgValueAverage, AlgrithmList, SessionPariLabel,varargout]
 %                   cross correlation and dtw generated in SimilarityAnalysis script
 %
 % OUTPUTS (Required):
-%   - VideoScore n x 1 (matrix): Video scores (ground truth data marked by researcher).
+%   - VideoScore 4 x 1 (matrix): Video scores (ground truth data marked by researcher).
 %   - AlgrithmList 1 x m (strings): List of algorithms with m different algorithms provided in Alg.
 %   - AlgValueAverage n x m (matrix): Averaged algorithm values at for 5s window centered at each video scoring time.
 %   - SessionPariLabel  n x 3 (cell array): Informantion of Session, pair labels and time points selected from which algorithm for each video score.
@@ -82,7 +83,7 @@ for SessionNo = 1:size(allinfostr, 1)
 
     for PairNo = 1:length(UniPairLabel4Score)
         % disp(UniPairLabel4Score(PairNo))
-        
+        UniPairLabel4Score
         % Find the Pair in the algorithm's order
         PairStr = split(UniPairLabel4Score(PairNo), '-');
         P1 = PairStr{1, 1};

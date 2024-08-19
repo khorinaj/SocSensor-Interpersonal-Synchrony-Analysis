@@ -1,91 +1,98 @@
-%% Add functions to path
+%% Visualization of Classification Results and Interaction Patterns
+% This script use classification for generating thresholds for visualisation plot
+% and generates various figures to dsiplay the interaction dynamics in
+% groups
+% This tiger plots and network plots for specific sessions and participants.
+% 
+% Author: Yanke Sun
+% Date: 25/7/2024
+
+%% Setup
+close all;
+clc;
+
+% Add functions to path
 addpath('scr')
 addpath('scr/wavelet-coherence-master')
-%% Load acceleration signal
-% load data previously saved
-% alternaltively generate in SimialrityAnalysis.mat
+%% Load Data
+% Use varaiables generated in SimialrityAnalysis_1.mat,Classification_3.m
+% Alternatively load analysis previously saved 
+%load(fullfile('Analysis','ProcessedData.mat'), 'OriData', 'ParLabels', 'WA_data', 'CC_data', 'DTW_data');
+load(fullfile('Analysis','features.mat'),'f');
+save(fullfile('Analysis','classification.mat'),'SessionPairLabel','VideoScore')
+%% Select Session for Analysis
+session = "SJV day 1";
+fsession = regexprep(session, ' ', '_');
 
-load(fullfile('Analysis','Data.mat'),'OriData','ParLabels')
-%% Training data use specific fold 
-% We are using session 7 as an example,
-session= "SJV day 1";
-% load feature saved previously
-% alternaltively generated from Classfication3
-load(fullfile('Analysis','features.mat'),'f')
-fMat=f;
-% ensemble bagged tree
-template = templateTree(...
-    'MaxNumSplits',200,...
-    'Surrogate','on',...
-    'NumVariablesToSample', 'all');
+%% Train Classification Model for generating threshold value 
+fMat = f;
+% fMat = Baselinef;
+template = templateTree('MaxNumSplits', 2000, 'Surrogate', 'on', 'NumVariablesToSample', 'all');
+NumLearningCycles = 60;
+groups = {7}; % Session 7 as test data, rest for training
+randomState=11; % Set random state for reproducibility
+% Create binary labels based on VideoScore
+InteractionLevel = zeros(size(VideoScore(:,2)));% Use motor score here
+InteractionLevel(VideoScore(:,2) > 2) = 1; % Set threshold at 2
 
-rng(11); % Set the seed for the random number generator
-% session 7 is test data 
-% the rest of sessions are used for training 
-groups={7};
-%-------------------------------------------------------------------------
-[EvaluationMetric,EMtable,Model]=modelBaggingTrain(fMat,InteractionLevel,groups,SessionPairLabel...
-    ,'template',template,'NumLearningCycles',NumLearningCycles);
+%%
+% Train model
+[EvaluationMetric, EMtable, Model] = modelBaggingTrain(fMat, InteractionLevel, groups, SessionPairLabel, ...
+    'template', template, 'NumLearningCycles', NumLearningCycles,'randomState',randomState);
 
-%% Data preparation for plotting tiger plots and network plot
-% load analysis previously saved 
-% alternaltively use simiarlity measures generated in SimialrityAnalysis.mat
+%% Prepare Data for Visualization
 
-% load('Analysis\WAfullrange.mat','WAOri')
-fsession=regexprep(session, ' ', '_');
+% Extract specific measures for the selected session
+% The order should be the same as the simialrity features used for training
+specificXWT=WA_data.(fsession).('xwScave27_86');
+specificWCT=WA_data.(fsession).('wcohScave27_86');
+spcecificCC = CC_data.(fsession).('Ncc_W126S63');
+% Select MAX LAG used in CC
+CCsel=7; % change value upon preference
+spcecificDTW = DTW_data.(fsession).("WNdtw_W126S63");
+% Select WRAPING PATH used in DTW
+DTWsel=7; % change value upon preference
+spcecificED = ED_data.(fsession).("dtw_W126S63");% ED
 
-% load('Analysis\Data1.mat','CCOriMax')
-spcecificCC=CCOriMax.(fsession).('NWOri_func0_W126S63');
-% datause=CCOriMax.(fsession).('Ori_NOg_func0_W126S63');
-for i=1:length(spcecificCC)
-spcecificCC{i,1}=spcecificCC{i,1}(7,:);
+% Process specific measures
+for i = 1:length(spcecificCC)
+    spcecificCC{i,1} = spcecificCC{i,1}(CCsel,:); % change for select different paramenters
+    spcecificDTW{i,1} = spcecificDTW{i,1}(DTWsel,:);% change for select different paramenters
+    spcecificED{i,1} = spcecificED{i,1};
 end
 
-% load('Analysis\Data1.mat','DTWOri')
-spcecificDTW=DTWOri.(fsession).("NOri_W126S63");
-spcecificED=DTWOri.(fsession).("Ori_NOg_W126S63");
-for i=1:length(spcecificDTW)
-spcecificDTW{i,1}=spcecificDTW{i,1}(7,:);
-spcecificED{i,1}=spcecificED{i,1}(13,:);
-end
+%% Combine Selected Features for Plotting
+CombinedAlg = dataInput4Plot(specificXWT,specificWCT,spcecificCC, spcecificDTW, spcecificED);
+%% Generate Tiger Plot for Specific Participant
+ChildName = 'M12';
+selevent2 = [1008, 1039, 1378, 1702, 1852, 2204, 2286, 2724, 3055, 3164, 3213, 3282, 3314, 3714];
 
+[TIV] = TigerPlot_ML(session, ChildName, CombinedAlg, OriData.(fsession), ParLabels.(fsession), Model{1}, ...
+    'PlotRangeSocSensorFlag', true, 'AddingUpFlag', true, 'EventsTime', selevent2, 'FontSize', 26);
 
-%% Combine the selected features for plot generation
-CombinedAlg=dataInput4Plot(WAOri.(fsession).('xwScave27_86')...
-    ,WAOri.(fsession).('wcohScave27_86'),spcecificCC,spcecificDTW,spcecificED);
- 
-%% Plot Tiger plot
-% Select the person to plot
-ChildName='M12';
+%% Generate Network Plot
+NetworkPlot_ML(session, CombinedAlg, OriData.(fsession), ParLabels.(fsession), Model{1}, ...
+    'PlotRangeSocSensorFlag', true, 'PlotType', 'NT');
 
-selevent2=[1008,	1039,	1378,	1702,	1852,	2204,	2286,	2724,	3055,	3164,	3213,	3282,	3314, 3714];
+%% Generate Overall Interaction Heatmap
+ParLabel = ParLabels.(fsession);
 
-% plotRange=[2724,3049];
-% With event codes and Addingup Flag
-[TIV]=TigerPlot_ML(session,ChildName,CombinedAlg,OriData.(fsession),ParLabels.(fsession),Model{1},...
-'PlotRangeSocSensorFlag',true,'AddingUpFlag',true,'EventsTime',selevent2,'FontSize',26);
-
-%% Generate network plots
-NetworkPlot_ML(session,CombinedAlg,OriData.(fsession),ParLabels.(fsession),Model{1},...
-             'PlotRangeSocSensorFlag',true,'PlotType','NT');
-
-%% Overall interaction
-
-ParLabel=ParLabels.(fsession);
-for i=1:length(ParLabel)
-    ChildName=ParLabel(i);
-    [TIV]=TigerPlot_ML(session,ChildName,CombinedAlg,OriData.(fsession),ParLabel,Model{1},...
-        'PlotRangeSocSensorFlag',true,'figureFlag',false);
+for i = 1:length(ParLabel)
+    ChildName = ParLabel(i);
+    [TIV] = TigerPlot_ML(session, ChildName, CombinedAlg, OriData.(fsession), ParLabel, Model{1}, ...
+        'PlotRangeSocSensorFlag', true, 'figureFlag', false);
     if i==1
-        TIVsum=any(TIV,1);
+        TIVsum= any(TIV, 1);
     else
-        TIVsum=[TIVsum;any(TIV,1)];
+        TIVsum=[TIVsum;any(TIV, 1)];
     end
 end
-%
-figure
-h=heatmap(cellstr("Day 3"),cellstr(ParLabel),sum(TIVsum,2)/length(TIVsum));
-h.ColorLimits=[0.1,0.2];
-set(findall(gcf,'-property','FontSize'),'FontSize',18)
-%
-genTigerPlot(TIVsum,ParLabels.(fsession),'AddingUpFlag',true,'EventsCodeEdge',0.5,'FontSize',36)
+
+% Plot heatmap
+figure;
+h = heatmap(cellstr("Day 3"), cellstr(ParLabel), sum(TIVsum, 2) / size(TIVsum, 2));
+h.ColorLimits = [0.1, 0.2];
+set(findall(gcf, '-property', 'FontSize'), 'FontSize', 18);
+
+% Generate overall tiger plot
+genTigerPlot(TIVsum, ParLabels.(fsession), 'AddingUpFlag', true, 'EventsCodeEdge', 0.5, 'FontSize', 36);

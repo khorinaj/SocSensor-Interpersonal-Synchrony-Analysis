@@ -23,6 +23,7 @@ function [EvaluationMetric1, evaluationTable, varargout] = modelBaggingTrain(fMa
 
 % Default values for optional parameters
 SavedModelFlag = false;
+randomFlag = false;
 template = [];
 NumLearningCycles = 60;
 
@@ -56,6 +57,16 @@ for i = 1:numel(varargin)
     end
 end
 
+for i = 1:numel(varargin)
+    if ischar(varargin{i}) && strcmpi(varargin{i}, 'randomState')
+        if i < numel(varargin)
+            randomState = varargin{i + 1};
+            randomFlag=true;
+            break
+        end
+    end
+end
+
 % Load session names from the information file
 load(fullfile('Info', 'allinfostr'), 'SessionNames');
 
@@ -78,10 +89,15 @@ for k = 1:numGroups
 
     % Train bagging ensemble model if not using a saved model
     if ~SavedModelFlag
+        if randomFlag
+         % Set random seed for reproducibility
+         rng(randomState);
+        end
         trees{k} = fitcensemble(trainData, trainLabels, ...
             'Method', 'Bag', ...
             'NumLearningCycles', NumLearningCycles, ...
             'Learners', template);
+       
     end
 
     % Predict using the trained model
@@ -114,17 +130,17 @@ for k = 1:numGroups
     TP = confusion_matrix(2, 2);
     
     % Calculate evaluation metrics
-    EvaluationMetric(k, 1) = TN / (TN + FN);  % Specificity
-    EvaluationMetric(k, 2) = TP / (TP + FP);  % Precision
-    EvaluationMetric(k, 3) = TN / (TN + FP);  % Negative Predictive Value
-    EvaluationMetric(k, 4) = TP / (TP + FN);  % Sensitivity (Recall)
-    EvaluationMetric(k, 5) = TN / (TN + FP);  % Accuracy for negative class
-    EvaluationMetric(k, 6) = TN / (TN + FN);  % Accuracy for positive class
+    EvaluationMetric(k, 1) = TN / (TN + FN);  % Precision-negative class
+    EvaluationMetric(k, 2) = TP / (TP + FP);  % Precision- positive class
+    EvaluationMetric(k, 3) = TN / (TN + FP);  % Sensitivity (Recall)-negative class
+    EvaluationMetric(k, 4) = TP / (TP + FN);  % Sensitivity (Recall)- positive class
+    EvaluationMetric(k, 5) = TN / (TN + FP);  % Specificity-negative class
+    EvaluationMetric(k, 6) = TN / (TN + FN);  % Specificity- positive class
     EvaluationMetric(k, 7) = 2 * (EvaluationMetric(k, 1) * EvaluationMetric(k, 3)) / (EvaluationMetric(k, 1) + EvaluationMetric(k, 3));  % F1 Score for negative class
     EvaluationMetric(k, 8) = 2 * (EvaluationMetric(k, 2) * EvaluationMetric(k, 4)) / (EvaluationMetric(k, 2) + EvaluationMetric(k, 4));  % F1 Score for positive class
-    EvaluationMetric(k, 9) = (TP + TN) / (TP + TN + FP + FN);  % Overall Accuracy
+    EvaluationMetric(k, 9) = (TP + TN) / (TP + TN + FP + FN);  % Accuracy
     EvaluationMetric(k, 10) = (EvaluationMetric(k, 3) + EvaluationMetric(k, 6)) / 2;  % Balanced Accuracy
-    EvaluationMetric(k, 11) = AUC1;  % AUC for positive class
+    EvaluationMetric(k, 11) = AUC1;  % AUC 
 end
 
 % Transpose and scale EvaluationMetric for output
@@ -132,8 +148,9 @@ EvaluationMetric1 = EvaluationMetric';
 EvaluationMetric1(1:(end-1), :) = 100 * EvaluationMetric1(1:(end-1), :);
 
 % Generate a table for EvaluationMetric
-metricNames = {'Specificity', 'Precision', 'Negative Predictive Value', ...
-    'Sensitivity', 'Accuracy (Negative Class)', 'Accuracy (Positive Class)', ...
+metricNames = {'Precision (Negative Class)', 'Precision (Positive Class)', ...
+    'Sensitivity (Negative Class)', 'Sensitivity (Positive Class)', ...
+    'Specificity (Negative Class)', 'Specificity (Positive Class)', ...
     'F1 Score (Negative Class)', 'F1 Score (Positive Class)', ...
     'Overall Accuracy', 'Balanced Accuracy', 'AUC'};
 evaluationTable = array2table(EvaluationMetric1', 'VariableNames', metricNames);

@@ -1,50 +1,67 @@
+%% Feature Analysis through linear regression
+% This script analysis Rsquare and pvalues from linear regression for different
+% similarity measures and different combinition of similarity measures
+% Author: Yanke Sun
+% Date: 25/7/2024
+
 %% Add functions to path
 addpath('scr')
 addpath('scr/wavelet-coherence-master')
+close all;
+clc;
 %% load analysis that previously saved
-% load analysis previously saved 
-% alternaltively use simiarlity measures generated in SimialrityAnalysis.mat
-load(fullfile('Analysis','Data.mat'),'OriData','ParLabels','WAOri')
+% Use simiarlity measures generated in SimialrityAnalysis_1.mat
+% Alternatively load analysis previously saved 
+%load(fullfile('Analysis','ProcessedData.mat'), 'OriData', 'ParLabels', 'WA_data', 'CC_data', 'DTW_data',','ED_data'');
 
-%% Extract Algorithm values from selected time points(times when video is scored) for all sessions
+
+%% Extract Algorithm values from time points(when video is scored) for all sessions
+% VideoScore have four colomns representing four different scores as ground
+% truth: attention, motor, proximity and overall
 
 [VideoScore,AlgValueAverage,AlgrithmList,SessionPairLabel]=...
-          ExtractAlgValuesFromTimePoints(OriData,ParLabels,WAOri);
+          ExtractAlgValuesFromTimePoints(OriData,ParLabels,ED_data);
 
-% VideoScore have four colomns representing four different scores as ground
-% truth: 
-%% Check Rsquare of each algorithm
-% Can select different groups
+%% Check Rsquare of individual algorithm
+
+% Uncomment and modify the following lines to select different groups
 % groupSel=or(SessionPariLabel(:,1)=="SJV day 1", SessionPariLabel(:,1)=="SJV day 4");
 % groupSel=or(or(SessionPariLabel(:,1)=="QM day 1 EY", SessionPariLabel(:,1)=="QM day 2 EY"),SessionPariLabel(:,1)=="QM day 3 EY");
 % groupSel=or(or(SessionPariLabel(:,1)=="Q4 day 1", SessionPariLabel(:,1)=="Q4 day 2"),SessionPariLabel(:,1)=="Q4 day 3");
+
 rsquare=genRsquare(AlgValueAverage, AlgrithmList, VideoScore(:, 2));
-%%  Different Combination of features. 
-AlgName1=["XWT","WCT","CC","DTW","ED"];
-%% Prepare Alogrithm used to combine
-% load analysis previously saved 
-% alternaltively use simiarlity measures generated in SimialrityAnalysis.mat
 
-% WA anlaysis saved previously
-load('Analysis\WAfullrange.mat','WAOri')
-[VideoScore,AlgValueAverage,AlgrithmList,~]=ExtractAlgValuesFromTimePoints(OriData,ParLabels,WAOri);
-f=AlgValueAverage;
-AlgName=AlgrithmList;
+%% Checking Rsqure of combinition of features:
+%% Prepare Alogrithm lists used to combine 
+% Use simiarlity measures generated in SimialrityAnalysis_1.mat
+% Alternatively load analysis previously saved 
+%load(fullfile('Analysis','ProcessedData.mat'), 'OriData', 'ParLabels', 'WA_data', 'CC_data', 'DTW_data');
 
-% CC anlaysis saved previously
-load('Analysis\Data1.mat','CCOriMax')
-[~,AlgValueAverage,AlgrithmList,~]=ExtractAlgValuesFromTimePoints(OriData,ParLabels,CCOriMax);
-f=[f,AlgValueAverage(:,33)];
-AlgName=[AlgName,AlgrithmList(33)];
+% Extract WA anlaysis at time points with a groud truth value(scored video clips by researchers)
+[VideoScore,WA_Scored,WA_Alglist,~]=ExtractAlgValuesFromTimePoints(OriData,ParLabels,WA_data);
+% Extract CC anlaysis at time points with a groud truth value
+[~,CC_Scored,CC_Alglist,~]=ExtractAlgValuesFromTimePoints(OriData,ParLabels,CC_data);
+% Extract DTW anlaysis at time points with a groud truth value
+[~,DTW_Scored,DTW_Alglist,~]=ExtractAlgValuesFromTimePoints(OriData,ParLabels,DTW_data);
+% Extract DTW anlaysis at time points with a groud truth value
+[~,ED_Scored,ED_Alglist,~]=ExtractAlgValuesFromTimePoints(OriData,ParLabels,ED_data);
 
-% DTW anlaysis saved previously
-load('Analysis\Data1.mat','DTWOri')
-[~,AlgValueAverage,AlgrithmList,~]=ExtractAlgValuesFromTimePoints(OriData,ParLabels,DTWOri);
-f=[f,AlgValueAverage(:,[46,26])];
-AlgName=[AlgName,AlgrithmList([46,26])];
+% 
+WAsel=[3,4,5,6]; % change value upon preference
+% Select MAX LAG used in CC
+CCsel=7; % change value upon preference
+% Select WRAPING PATH used in DTW
+DTWsel=7; % change value upon preference
+f=[WA_Scored(:,WAsel),CC_Scored(:,CCsel),DTW_Scored(:,DTWsel),ED_Scored];
 
+
+% Name selected features. 
+% AlgName1=["XWT","WCT","CC","DTW","ED"];
+AlgName1=["XWTH","WCTH","XWTL","WCTL","CC","DTW","ED"];
 %% Session dependent cross validation
 groups = splitSessionDependFold(5, SessionPairLabel);
 %% Generate R square for combinition of features 
-NofeatureCombine=2;
+
+% Select No. of feature combined
+NofeatureCombine=4;
 [StaResults, fullAlgList] = genR4CombinedFeatures(f, AlgName1, VideoScore(:, 2), groups, NofeatureCombine, SessionPairLabel);

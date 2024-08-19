@@ -50,9 +50,18 @@ for i = 1:length(sortedValues)
     groupSums(groupIdx) = groupSums(groupIdx) + sortedValues(i);
 end
 
+% Calculate the total proportion
+totalProportion = sum(Parportion);
+
 % Display the sum of proportions for each group
 for k = 1:numGroups
-    disp(['Group ' num2str(k) ': Sum of proportions = ' num2str(sum(Parportion(groups{k})))]);
+    groupElements = groups{k};
+    elementsStr = sprintf('%d ', groupElements);
+    groupProportion = sum(Parportion(groupElements));
+    percentageOfData = (groupProportion / totalProportion) * 100;
+    
+    disp(['Fold ' num2str(k) ': Session used in Validation: ' elementsStr ...
+          ' (' num2str(percentageOfData, '%.2f') '% of data)']);
 end
 
 end

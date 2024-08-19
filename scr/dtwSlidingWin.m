@@ -103,6 +103,7 @@ BB = wtOrder(:, 2);
 dtwori = cell(size(AA, 1), 1);
 w = round(windowsize * wcoef);
 
+
 % Parallel loop for DTW calculations
 parfor ioo = 1:size(AA, 1)
     DistallN = zeros(1, length(x(:, 1)));
